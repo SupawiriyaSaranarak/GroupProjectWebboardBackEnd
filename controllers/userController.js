@@ -218,20 +218,31 @@ exports.getMe = async (req, res, next) => {
 exports.updateMe = async (req, res, next) => {
   try {
     const { id, userStatus } = req.user;
-    const { username, email, userImg } = req.body;
+    const {
+      username,
+      // email,
+      userImg,
+    } = req.body;
     if (userStatus === "INACTIVE")
       return res.status(400).json({ message: "This user has been deleted" });
 
-    const checkedDuplicateUsername = await User.findOne({
+    const checkedDuplicateUsername = await User.findAll({
       where: { username },
     });
-    if (checkedDuplicateUsername)
+    if (checkedDuplicateUsername.length > 1)
       return res.status(400).json({ message: "Username is duplicated" });
-    const checkedDuplicateEmail = await User.findOne({ where: { email } });
-    if (checkedDuplicateEmail)
-      return res.status(400).json({ message: "Email is duplicated" });
+    // const checkedDuplicateEmail = await User.findAll({ where: { email } });
+    // if (checkedDuplicateEmail)
+    //   return res.status(400).json({ message: "Email is duplicated" });
 
-    await User.update({ username, email, userImg }, { where: { id } });
+    await User.update(
+      {
+        username,
+        // email,
+        userImg,
+      },
+      { where: { id } }
+    );
     const newUser = await User.findOne({ where: { id } });
     const payload = {
       id: newUser.id,
